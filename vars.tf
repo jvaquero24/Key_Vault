@@ -1,11 +1,15 @@
-variable keyvault_name {
-  description = "Nombre del Key Vault"
+variable "resource_group_name" {
+  type        = string
 }
-
-variable databrick_name {
-  description = "Nombre del Databrick"
+variable "location" {
+  type        = string
 }
-
-variable databricks_secret_value {
-  description = "Access token generado en Databricks que se añadirá en el KV"
-} 
+variable "name_keyvault" {
+  type        = string
+}
+variable "tenant_id" {
+  type        = string
+}
+variable "sku_keyvault" {
+  type        = string
+}
