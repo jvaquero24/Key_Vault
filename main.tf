@@ -2,65 +2,40 @@ data "azurerm_resource_group" "RG" {
   name = var.resource_group_name
 }
 
+data "azurerm_client_config" "current" {}
 
-resource "azurerm_key_vault" "resource_group_keyVault" {
-  name = var.keyvault_name
-  location = "${azurerm_resource_group.resource_group.location}"
-  resource_group_name = data.azurerm_resource_group.RG.name
+
+resource "azurerm_key_vault" "AKV" {
+  name                        = "testvault"
+  location                    = var.location
+  resource_group_name         = data.azurerm_resource_group.RG.name
   enabled_for_disk_encryption = true
-  tenant_id = var.vtenant_id
-  sku_name = "standard"
+  tenant_id                   = data.azurerm_client_config.current.tenant_id
+  soft_delete_enabled         = true
+  soft_delete_retention_days  = 7
+  purge_protection_enabled    = false
+
+  sku_name = var.sku_keyvault
 
   access_policy {
-    tenant_id = var.vtenant_id
-    object_id = var.user_id_dgonzalez
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = data.azurerm_client_config.current.object_id
 
     key_permissions = [
       "get",
     ]
-    secret_permissions = [
-      "delete",
-      "get",
-      "list",
-      "set"
-    ]
-  }
-  access_policy {
-    tenant_id = var.vtenant_id
-    object_id = var.user_id_szabala
-
-    key_permissions = [
-      "get",
-    ]
-    secret_permissions = [
-      "delete",
-      "get",
-      "list",
-      "set"
-    ]
-  }
-  access_policy {
-    tenant_id = var.vtenant_id
-    object_id = var.user_id_seperez
 
     secret_permissions = [
       "get",
-      "list"
+    ]
+
+    storage_permissions = [
+      "get",
     ]
   }
 
-  access_policy {
-    tenant_id = var.vtenant_id
-    object_id = "${azurerm_data_factory.data_factory.identity[0].principal_id}"
-
-    key_permissions = [
-      "get",
-    ]
-    secret_permissions = [
-      "delete",
-      "get",
-      "list",
-      "set"
-    ]
+  network_acls {
+    default_action = "Deny"
+    bypass         = "AzureServices"
   }
 }
